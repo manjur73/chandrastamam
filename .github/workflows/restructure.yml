@@ -1,1 +1,21 @@
-
+chandrastamam/
+├── frontend/                  ← React + Vite (deploy to Vercel)
+│   ├── src/
+│   │   ├── App.jsx            Router (/ and /admin)
+│   │   ├── UserPage.jsx       User form + results + SMS
+│   │   ├── AdminPage.jsx      Admin dashboard
+│   │   ├── firebase.js        Firebase config + DB helpers
+│   │   ├── vedic.js           Vedic astrology calculations
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .env.example
+│   ├── index.html
+│   └── package.json
+│
+├── backend/                   ← Node.js + Express (deploy to Render)
+│   ├── server.js              /api/send-sms + /api/send-sms-bulk
+│   ├── package.json
+│   └── .env.example
+│
+├── firestore.rules            Firestore security rules
+└── README.md
