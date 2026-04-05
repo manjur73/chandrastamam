@@ -1,1 +1,139 @@
+name: Restructure Project
+on:
+  workflow_dispatch:
 
+jobs:
+  restructure:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write all project files
+        run: |
+          python3 - << 'PYEOF'
+import os
+
+def write(path, content):
+    os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
+    with open(path, 'w') as f:
+        f.write(content)
+
+# ── frontend/index.html ──────────────────────────────────────────────────────
+write("frontend/index.html", """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chandrastamam Indicator</title>
+    <meta name="description" content="Find your Rasi, Nakshatra and upcoming Chandrastamam periods" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+""")
+
+# ── frontend/vite.config.js ──────────────────────────────────────────────────
+write("frontend/vite.config.js", """import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+export default defineConfig({ plugins: [react()] })
+""")
+
+# ── frontend/vercel.json ─────────────────────────────────────────────────────
+write("frontend/vercel.json", """{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "installCommand": "npm install"
+}
+""")
+
+# ── frontend/package.json ────────────────────────────────────────────────────
+write("frontend/package.json", """{
+  "name": "chandrastamam-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "firebase": "^10.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^5.0.0"
+  }
+}
+""")
+
+# ── frontend/.env.example ────────────────────────────────────────────────────
+write("frontend/.env.example", """VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abc123
+VITE_SUPER_ADMIN_EMAIL=youremail@gmail.com
+VITE_API_URL=https://chandrastamam-backend.onrender.com
+""")
+
+# ── frontend/src/main.jsx ────────────────────────────────────────────────────
+write("frontend/src/main.jsx", """import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode><App /></React.StrictMode>
+);
+""")
+
+# ── frontend/src/App.jsx ─────────────────────────────────────────────────────
+write("frontend/src/App.jsx", """import { BrowserRouter, Routes, Route } from "react-router-dom";
+import UserPage from "./UserPage";
+import AdminPage from "./AdminPage";
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/"      element={<UserPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+""")
+
+# ── frontend/src/vedic.js ────────────────────────────────────────────────────
+write("frontend/src/vedic.js", """export const NAKSHATRAS = [
+  { name: "Ashwini",           rasi: "Mesha",             lord: "Ketu"    },
+  { name: "Bharani",           rasi: "Mesha",             lord: "Shukra"  },
+  { name: "Krittika",          rasi: "Mesha/Vrishabha",   lord: "Surya"   },
+  { name: "Rohini",            rasi: "Vrishabha",         lord: "Chandra" },
+  { name: "Mrigashira",        rasi: "Vrishabha/Mithuna", lord: "Mangala" },
+  { name: "Ardra",             rasi: "Mithuna",           lord: "Rahu"    },
+  { name: "Punarvasu",         rasi: "Mithuna/Karka",     lord: "Guru"    },
+  { name: "Pushya",            rasi: "Karka",             lord: "Shani"   },
+  { name: "Ashlesha",          rasi: "Karka",             lord: "Budha"   },
+  { name: "Magha",             rasi: "Simha",             lord: "Ketu"    },
+  { name: "Purva Phalguni",    rasi: "Simha",             lord: "Shukra"  },
+  { name: "Uttara Phalguni",   rasi: "Simha/Kanya",       lord: "Surya"   },
+  { name: "Hasta",             rasi: "Kanya",             lord: "Chandra" },
+  { name: "Chitra",            rasi: "Kanya/Tula",        lord: "Mangala" },
+  { name: "Swati",             rasi: "Tula",              lord: "Rahu"    },
+  { name: "Vishakha",          rasi: "Tula/Vrishchika",   lord: "Guru"    },
+  { name: "Anuradha",          rasi: "Vrishchika",        lord: "Shani"   },
+  { name: "Jyeshtha",          rasi: "Vrishchika",        lord: "Budha"   },
+  { name: "Mula",              rasi: "Dhanu",             lord: "Ketu"    },
+  { name: "Purva Ashadha",     rasi: "Dhanu",             lord: "Shukra"  },
+  { name: "Uttara Ashadha",    rasi: "Dhanu/Makara",      lord: "Surya"   },
+  { name: "Shravana",          rasi: "Makara",            lord: "Chandra" },
